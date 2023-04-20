@@ -9,7 +9,6 @@ export const Quotes: React.FC = () => {
   let navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const [quoteList, setQuoteList] = useState<any>([]);
-  const [bookList, setBookList] = useState<any>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
