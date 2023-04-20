@@ -1,50 +1,57 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./Quotes.module.css"
-import { Carousel as AntCarousel } from "antd"
+import axios from "axios"
+import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Carousel as AntCarousel, Spin, Space, Typography} from "antd";
 
 export const Quotes: React.FC = () => {
-    return (
-        <AntCarousel autoplay autoplaySpeed={6000} effect="fade" className={styles.Slider}>
-            <div>
-              <h3>
-                “Be yourself; everyone else is already taken.” 
-              </h3>
-              ―
-              <span> Oscar Wilde</span>
-            </div>
-            <div>
-              <h3>
-                “I'm selfish, impatient and a little insecure. I make mistakes, 
-                I am out of control and at times hard to handle. But if you can't 
-                handle me at my worst, then you sure as hell don't deserve me 
-                at my best.” 
-              </h3>
-              ―
-              <span> Marilyn Monroe</span>
-            </div>
-            <div>
-              <h3>
-              “Two things are infinite: the universe and human stupidity; 
-              and I'm not sure about the universe.” 
-              </h3>
-              ―
-              <span> Albert Einstein</span>
-            </div>
-            <div>
-              <h3>“So many books, so little time.”</h3>
-              ―
-              <span> Frank Zappa</span>
-            </div>
-            <div>
-              <h3>
-              “You've gotta dance like there's nobody watching,
-              Love like you'll never be hurt,
-              Sing like there's nobody listening,
-              And live like it's heaven on earth.” 
-              </h3>
-              ―
-              <span> William W. Purkey</span>
-            </div>
-        </AntCarousel>
-    );
+  let navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [quoteList, setQuoteList] = useState<any>([]);
+  const [bookList, setBookList] = useState<any>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      try {
+        const { data } = await axios.get(`/api1/quote/list/`);
+        console.log("related", data.data, typeof(data.data))
+        setQuoteList(data.data)
+        setLoading(false)
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "error")
+        setLoading(false)
+      }
+    }
+    fetchData();
+  }, []);
+  if (loading) {
+    return <Spin
+      size="large"
+      style={{
+        marginTop: 200,
+        marginBottom: 200,
+        marginLeft: "auto",
+        marginRight: "auto",
+        width: "100%",
+      }}
+    />
+  }
+  if (error) {
+    return <div>error: {error}</div>;
+  }
+
+  return (
+    <AntCarousel autoplay autoplaySpeed={6000} effect="fade" className={styles.Slider}>
+      {quoteList.map(p => (
+       <Space> 
+          <Typography.Text onClick={() => navigate(`/book/:${p.book_id}`)}>
+            {p.text}
+          </Typography.Text>
+      </Space>
+      ))}
+    </AntCarousel>
+  );
 }
